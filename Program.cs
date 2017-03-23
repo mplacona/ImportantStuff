@@ -12,7 +12,7 @@ namespace ImportantStuff
     {
         static readonly string[] Scopes = { SheetsService.Scope.Spreadsheets };
         static readonly string ApplicationName = "Current Legislators";
-        static readonly string spreadsheetId = "";
+        static readonly string SpreadsheetId = "";
         static readonly string sheet = "";
 		static SheetsService service;
         static void Main(string[] args)
@@ -38,7 +38,7 @@ namespace ImportantStuff
 		{
 			var range = $"{sheet}!A:F";
 			SpreadsheetsResource.ValuesResource.GetRequest request =
-					service.Spreadsheets.Values.Get(spreadsheetId, range);
+					service.Spreadsheets.Values.Get(SpreadsheetId, range);
 
 			var response = request.Execute();
 			IList<IList<object>> values = response.Values;
@@ -63,7 +63,7 @@ namespace ImportantStuff
 			var oblist = new List<object>() { "Hello!", "This", "was", "insertd", "via", "C#" };
 			valueRange.Values = new List<IList<object>> { oblist };
 
-			var appendRequest = service.Spreadsheets.Values.Append(valueRange, spreadsheetId, range);
+			var appendRequest = service.Spreadsheets.Values.Append(valueRange, SpreadsheetId, range);
 			appendRequest.ValueInputOption = SpreadsheetsResource.ValuesResource.AppendRequest.ValueInputOptionEnum.USERENTERED;
 			var appendReponse = appendRequest.Execute();
 		}
@@ -76,7 +76,7 @@ namespace ImportantStuff
 			var oblist = new List<object>() { "updated" };
 			valueRange.Values = new List<IList<object>> { oblist };
 
-			var updateRequest = service.Spreadsheets.Values.Update(valueRange, spreadsheetId, range);
+			var updateRequest = service.Spreadsheets.Values.Update(valueRange, SpreadsheetId, range);
 			updateRequest.ValueInputOption = SpreadsheetsResource.ValuesResource.UpdateRequest.ValueInputOptionEnum.USERENTERED;
 			var appendReponse = updateRequest.Execute();
 		}
@@ -86,7 +86,7 @@ namespace ImportantStuff
 			var range = $"{sheet}!A543:F";
 			var requestBody = new ClearValuesRequest();
 
-			var deleteRequest = service.Spreadsheets.Values.Clear(requestBody, spreadsheetId, range);
+			var deleteRequest = service.Spreadsheets.Values.Clear(requestBody, SpreadsheetId, range);
 			var deleteReponse = deleteRequest.Execute();
 		}
     }
