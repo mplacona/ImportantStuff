@@ -8,37 +8,38 @@ using Google.Apis.Sheets.v4.Data;
 
 namespace ImportantStuff
 {
-    class Program
+	internal class Program
     {
-        static readonly string[] Scopes = { SheetsService.Scope.Spreadsheets };
-        static readonly string ApplicationName = "Current Legislators";
-        static readonly string SpreadsheetId = "";
-        static readonly string sheet = "";
-		static SheetsService service;
-        static void Main(string[] args)
-        {
-            GoogleCredential credential;
+	    private static readonly string[] Scopes = { SheetsService.Scope.Spreadsheets };
+	    private const string ApplicationName = "Current Legislators";
+	    private const string SpreadsheetId = "1P_0tngt7o02xgXr9T-wSaVXz-_OH0ZekYN8RLoWLnA4";
+	    private const string Sheet = "legislators-current";
+	    private static SheetsService _service;
+
+	    private static void Main()
+		{
+			GoogleCredential credential;
 			using (var stream = new FileStream("client_secret.json", FileMode.Open, FileAccess.Read))
 			{
 				credential = GoogleCredential.FromStream(stream)
 					.CreateScoped(Scopes);
 			}
-
+		
 			// Create Google Sheets API service.
-			service = new SheetsService(new BaseClientService.Initializer()
+			_service = new SheetsService(new BaseClientService.Initializer()
 			{
 				HttpClientInitializer = credential,
 				ApplicationName = ApplicationName,
 			});
+		
+			CreateMultipleEntries(5);
+		}
 
-            DeleteEntry();
-        }
-
-        static void ReadEntries()
+	    private static void ReadEntries()
 		{
-			var range = $"{sheet}!A:F";
+			var range = $"{Sheet}!A:F";
 			SpreadsheetsResource.ValuesResource.GetRequest request =
-					service.Spreadsheets.Values.Get(SpreadsheetId, range);
+					_service.Spreadsheets.Values.Get(SpreadsheetId, range);
 
 			var response = request.Execute();
 			IList<IList<object>> values = response.Values;
@@ -56,38 +57,54 @@ namespace ImportantStuff
 			}
 		}
 
-        static void CreateEntry() { 
-			var range = $"{sheet}!A:F";
+	    private static void CreateEntry() { 
+			var range = $"{Sheet}!A:F";
 			var valueRange = new ValueRange();
 
 			var oblist = new List<object>() { "Hello!", "This", "was", "insertd", "via", "C#" };
 			valueRange.Values = new List<IList<object>> { oblist };
 
-			var appendRequest = service.Spreadsheets.Values.Append(valueRange, SpreadsheetId, range);
+			var appendRequest = _service.Spreadsheets.Values.Append(valueRange, SpreadsheetId, range);
 			appendRequest.ValueInputOption = SpreadsheetsResource.ValuesResource.AppendRequest.ValueInputOptionEnum.USERENTERED;
-			var appendReponse = appendRequest.Execute();
+			appendRequest.Execute();
 		}
 
-        static void UpdateEntry()
+	    private static void CreateMultipleEntries(int quantity = 1)
+	    {
+		    var range = $"{Sheet}!A:G";
+		    for (var i = 0; i < quantity; i++){
+			    var valueRange = new ValueRange();
+
+		    	var oblist = new List<object>() {"Hello!", "This", "was", "insertd", "via", "C#", i};
+		    	valueRange.Values = new List<IList<object>> {oblist};
+
+				var appendRequest = _service.Spreadsheets.Values.Append(valueRange, SpreadsheetId, range);
+				appendRequest.ValueInputOption =
+					SpreadsheetsResource.ValuesResource.AppendRequest.ValueInputOptionEnum.USERENTERED;
+				appendRequest.Execute();
+	    	}
+    	}
+
+	    private static void UpdateEntry()
 		{
-			var range = $"{sheet}!D543";
+			var range = $"{Sheet}!D543";
 			var valueRange = new ValueRange();
 
 			var oblist = new List<object>() { "updated" };
 			valueRange.Values = new List<IList<object>> { oblist };
 
-			var updateRequest = service.Spreadsheets.Values.Update(valueRange, SpreadsheetId, range);
+			var updateRequest = _service.Spreadsheets.Values.Update(valueRange, SpreadsheetId, range);
 			updateRequest.ValueInputOption = SpreadsheetsResource.ValuesResource.UpdateRequest.ValueInputOptionEnum.USERENTERED;
-			var appendReponse = updateRequest.Execute();
+			updateRequest.Execute();
 		}
 
-        static void DeleteEntry()
+	    private static void DeleteEntry()
 		{
-			var range = $"{sheet}!A543:F";
+			var range = $"{Sheet}!A543:F";
 			var requestBody = new ClearValuesRequest();
 
-			var deleteRequest = service.Spreadsheets.Values.Clear(requestBody, SpreadsheetId, range);
-			var deleteReponse = deleteRequest.Execute();
+			var deleteRequest = _service.Spreadsheets.Values.Clear(requestBody, SpreadsheetId, range);
+			deleteRequest.Execute();
 		}
     }
 }
